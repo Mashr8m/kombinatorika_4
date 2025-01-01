@@ -1,30 +1,49 @@
-public class Main {
-    public static void sort(int[] arr) {
-        int n = arr.length;
-        for (int i = n / 2 - 1; i >= 0; i--) heapify(arr, n, i);
-        for (int i = n - 1; i > 0; i--) {
-            int temp = arr[0];
-            arr[0] = arr[i];
-            arr[i] = temp;
-            heapify(arr, i, 0);
-        }
-    }
+import java.util.*;
 
-    private static void heapify(int[] arr, int n, int i) {
-        int largest = i, left = 2 * i + 1, right = 2 * i + 2;
-        if (left < n && arr[left] > arr[largest]) largest = left;
-        if (right < n && arr[right] > arr[largest]) largest = right;
-        if (largest != i) {
-            int swap = arr[i];
-            arr[i] = arr[largest];
-            arr[largest] = swap;
-            heapify(arr, n, largest);
+public class Main {
+
+    // Функция для нахождения кратчайших путей от стартовой вершины до всех других
+    public static Map<String, Integer> bfsShortestPaths(Map<String, List<String>> graph, String start) {
+        // Инициализация: расстояние до всех вершин бесконечность
+        Map<String, Integer> distances = new HashMap<>();
+        for (String vertex : graph.keySet()) {
+            distances.put(vertex, Integer.MAX_VALUE);  // Изначально все расстояния бесконечность
         }
+        distances.put(start, 0);  // Стартовая вершина имеет расстояние 0
+
+        // Очередь для обхода вершин
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(start);  // Добавляем стартовую вершину в очередь
+
+        while (!queue.isEmpty()) {
+            String vertex = queue.poll();  // Извлекаем вершину из очереди
+            int currentDistance = distances.get(vertex);  // Получаем расстояние до текущей вершины
+
+            // Для каждого соседа текущей вершины
+            for (String neighbor : graph.get(vertex)) {
+                if (distances.get(neighbor) == Integer.MAX_VALUE) {  // Если сосед ещё не посещён
+                    distances.put(neighbor, currentDistance + 1);  // Обновляем расстояние
+                    queue.offer(neighbor);  // Добавляем соседа в очередь для дальнейшей обработки
+                }
+            }
+        }
+
+        return distances;
     }
 
     public static void main(String[] args) {
-        int[] arr = {12, 11, 13, 5, 6, 7};
-        sort(arr);
-        for (int num : arr) System.out.print(num + " ");
+        // Пример графа
+        Map<String, List<String>> graph = new HashMap<>();
+        graph.put("A", Arrays.asList("B", "C"));
+        graph.put("B", Arrays.asList("A", "D", "E"));
+        graph.put("C", Arrays.asList("A", "F"));
+        graph.put("D", Arrays.asList("B"));
+        graph.put("E", Arrays.asList("B", "F"));
+        graph.put("F", Arrays.asList("C", "E"));
+
+        // Тестирование алгоритма
+        String startVertex = "A";
+        Map<String, Integer> distances = bfsShortestPaths(graph, startVertex);
+        System.out.println("Расстояния от вершины " + startVertex + ": " + distances);
     }
 }
